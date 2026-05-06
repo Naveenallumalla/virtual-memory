@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulator Suite — Virtual Memory & Page Replacement Simulator</title>
+  <meta name="description" content="Interactive virtual memory simulator comparing FIFO, LRU, and Optimal page replacement algorithms with step-by-step animation and performance analytics." />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════ -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#" aria-label="Simulator Suite Home">
+      <div class="nav-logo" aria-hidden="true">⚡</div>
+      <span class="nav-title">Simulator <span>Suite</span></span>
+    </a>
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab active" data-tab="home" role="tab" id="tab-home" aria-selected="true" aria-controls="page-home">
+        <span>🏠</span><span class="tab-label">Home</span>
+      </button>
+      <button class="nav-tab" data-tab="simulation" role="tab" id="tab-simulation" aria-selected="false" aria-controls="page-simulation">
+        <span>▶️</span><span class="tab-label">Simulate</span>
+      </button>
+      <button class="nav-tab" data-tab="results" role="tab" id="tab-results" aria-selected="false" aria-controls="page-results">
+        <span>📊</span><span class="tab-label">Results</span>
+      </button>
+      <button class="nav-tab" data-tab="charts" role="tab" id="tab-charts" aria-selected="false" aria-controls="page-charts">
+        <span>📈</span><span class="tab-label">Charts</span>
+      </button>
+      <button class="nav-tab" data-tab="about" role="tab" id="tab-about" aria-selected="false" aria-controls="page-about">
+        <span>📚</span><span class="tab-label">About</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ PAGE: HOME ══════════════════════════════════════════ -->
+<main id="page-home" class="page active" role="tabpanel" aria-labelledby="tab-home">
+  <section class="hero" aria-label="Hero section">
+    <div class="hero-grid container">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <span>🎓</span> Educational Operating Systems Tool
+        </div>
+        <h1 class="hero-title">
+          Visualize <span class="gradient-text">Virtual Memory</span><br/>Page Replacement
+        </h1>
+        <p class="hero-desc">
+          Interactively simulate and compare <strong>FIFO</strong>, <strong>LRU</strong>, and <strong>Optimal</strong> page replacement algorithms with step-by-step frame animation, live metrics, and performance analytics.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" id="heroTryBtn">
+            🚀 Try Sample Input
+          </button>
+          <button class="btn btn-secondary btn-lg" onclick="switchTab('about')">
+            📚 Learn More
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <div class="memory-demo">
+          <div class="memory-demo-label">Live Memory Frames</div>
+          <div class="memory-frames">
+            <div class="demo-frame fault" title="Page Fault">3</div>
+            <div class="demo-frame hit" title="Page Hit">1</div>
+            <div class="demo-frame fault" title="Page Fault">4</div>
+            <div class="demo-frame empty">—</div>
+          </div>
+          <div class="memory-demo-label" style="margin-top:12px">Algorithm Comparison</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem">
+              <span style="color:var(--text-secondary)">📋 FIFO</span>
+              <span style="color:#fca5a5;font-weight:700">9 faults</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem">
+              <span style="color:var(--text-secondary)">🕐 LRU</span>
+              <span style="color:#fcd34d;font-weight:700">10 faults</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.82rem">
+              <span style="color:var(--text-secondary)">⭐ Optimal</span>
+              <span style="color:#6ee7b7;font-weight:700">7 faults</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Why It Matters</div>
+      <h2 class="section-title">Memory Management in Modern Systems</h2>
+      <p class="section-desc">Page replacement is a core OS mechanism used in every major operating system.</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;margin-bottom:40px">
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:12px">🐧</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px">Linux Kernel</h3>
+        <p style="font-size:0.875rem;color:var(--text-secondary)">Uses a variant of the Clock algorithm (approximation of LRU) via the Active/Inactive page lists in its VM subsystem.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:12px">🪟</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px">Windows NT</h3>
+        <p style="font-size:0.875rem;color:var(--text-secondary)">Implements a Working Set model with LRU-based trimming to manage the physical pages assigned per process.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:12px">📱</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px">Mobile / Embedded</h3>
+        <p style="font-size:0.875rem;color:var(--text-secondary)">Android uses LRU-ordered process lists for the Low Memory Killer to decide which apps to evict from RAM.</p>
+      </div>
+      <div class="card">
+        <div style="font-size:2rem;margin-bottom:12px">☁️</div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:8px">Cloud & Hypervisors</h3>
+        <p style="font-size:0.875rem;color:var(--text-secondary)">VMware ESXi uses balloon driver + LRU page reclamation to share physical memory across virtual machines.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ PAGE: SIMULATION ════════════════════════════════════ -->
+<main id="page-simulation" class="page" role="tabpanel" aria-labelledby="tab-simulation">
+  <div class="container">
+
+    <!-- Alert Banner -->
+    <div id="alertBox" class="alert" role="alert" aria-live="polite"></div>
+
+    <div class="sim-layout">
+      <!-- ── Input Panel ── -->
+      <aside class="sim-panel" aria-label="Simulation inputs">
+        <div class="sim-panel-title">⚙️ Configuration</div>
+
+        <div class="form-group">
+          <label class="form-label" for="refInput">Reference String <span>*</span></label>
+          <textarea id="refInput" class="form-control" rows="3"
+            placeholder="e.g. 1,2,3,4,1,2,5,1,2,3,4,5"
+            aria-required="true" aria-describedby="refHint refError"></textarea>
+          <div class="form-hint" id="refHint">Comma-separated page numbers (max 100 values).</div>
+          <div class="form-error" id="refError" role="alert"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="framesInput">Number of Frames <span>*</span></label>
+          <input id="framesInput" type="number" class="form-control" value="3" min="1" max="20"
+            aria-required="true" aria-describedby="framesHint framesError" />
+          <div class="form-hint" id="framesHint">Available physical memory frames (1–20).</div>
+          <div class="form-error" id="framesError" role="alert"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Algorithms <span>*</span></label>
+          <div class="algo-grid" role="group" aria-label="Algorithm selection">
+            <label class="algo-chip" title="First In First Out">
+              <input type="checkbox" class="algo-checkbox" value="fifo" checked />
+              <span class="algo-chip-dot"></span>
+              <span>📋 FIFO</span>
+            </label>
+            <label class="algo-chip" title="Least Recently Used">
+              <input type="checkbox" class="algo-checkbox" value="lru" checked />
+              <span class="algo-chip-dot"></span>
+              <span>🕐 LRU</span>
+            </label>
+            <label class="algo-chip" title="Optimal (Bélády's)">
+              <input type="checkbox" class="algo-checkbox" value="optimal" checked />
+              <span class="algo-chip-dot"></span>
+              <span>⭐ Optimal</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="sim-controls">
+          <button class="btn btn-primary" id="runBtn" aria-label="Run simulation">
+            <div class="spinner" id="spinner" aria-hidden="true"></div>
+            <span class="btn-text">▶ Run Simulation</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="sampleBtn" aria-label="Load sample input">
+            🎲 Sample
+          </button>
+          <button class="btn btn-ghost btn-sm" id="resetBtn" aria-label="Reset all inputs">
+            ↺ Reset
+          </button>
+        </div>
+      </aside>
+
+      <!-- ── Visualization Area ── -->
+      <section aria-label="Simulation visualization">
+
+        <!-- Timeline Slider -->
+        <div id="timelineBar" class="timeline-bar" role="group" aria-label="Step navigation">
+          <button class="btn btn-ghost btn-sm" id="prevStepBtn" aria-label="Previous step">◀</button>
+          <input type="range" id="stepSlider" min="0" value="0" step="1"
+            aria-label="Simulation step slider" />
+          <button class="btn btn-ghost btn-sm" id="nextStepBtn" aria-label="Next step">▶</button>
+          <span class="timeline-label" id="stepLabel">Step 0 / 0</span>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" aria-label="No simulation yet">
+          <div class="empty-icon">🖥️</div>
+          <div class="empty-title">No Simulation Yet</div>
+          <p class="empty-desc">Enter a reference string, choose frames and algorithms, then click <strong>Run Simulation</strong> to visualize page replacement step by step.</p>
+          <button class="btn btn-primary" onclick="loadSample();runSimulation()">
+            🚀 Quick Start with Sample
+          </button>
+        </div>
+
+        <!-- Algorithm Visualizations -->
+        <div id="vizArea" aria-live="polite" aria-label="Algorithm visualization output"></div>
+
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- ══ PAGE: RESULTS ═══════════════════════════════════════ -->
+<main id="page-results" class="page" role="tabpanel" aria-labelledby="tab-results">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Performance Analytics</div>
+      <h2 class="section-title">Algorithm Comparison Results</h2>
+      <p class="section-desc">Run a simulation to see detailed metrics and algorithm recommendations.</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="resultsEmpty" class="empty-state">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No Results Yet</div>
+      <p class="empty-desc">Head to the <strong>Simulate</strong> tab, configure your parameters, and run a simulation to generate comparison results.</p>
+      <button class="btn btn-primary" onclick="switchTab('simulation')">
+        ▶ Go to Simulate
+      </button>
+    </div>
+
+    <!-- Results Content -->
+    <div id="resultsSection">
+      <div class="summary-cards stats-row" aria-label="Summary metrics"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px">
+        <h3 style="font-size:1rem;font-weight:700">Detailed Comparison</h3>
+        <div class="export-row">
+          <button class="btn btn-secondary btn-sm" id="exportCsvBtn" aria-label="Export results as CSV">
+            📥 Export CSV
+          </button>
+          <button class="btn btn-secondary btn-sm" id="exportPdfBtn" aria-label="Export results as PDF">
+            🖨️ Print / PDF
+          </button>
+        </div>
+      </div>
+
+      <div class="results-table-wrap" role="region" aria-label="Results table">
+        <table class="results-table" aria-label="Algorithm comparison table">
+          <thead>
+            <tr>
+              <th scope="col">Algorithm</th>
+              <th scope="col">Page Faults</th>
+              <th scope="col">Page Hits</th>
+              <th scope="col">Hit Ratio</th>
+              <th scope="col">Fault Rate</th>
+              <th scope="col">Exec Time</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ PAGE: CHARTS ════════════════════════════════════════ -->
+<main id="page-charts" class="page" role="tabpanel" aria-labelledby="tab-charts">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Data Visualization</div>
+      <h2 class="section-title">Performance Charts</h2>
+      <p class="section-desc">Visual breakdown of algorithm efficiency across all metrics.</p>
+    </div>
+
+    <div id="chartsEmpty" class="empty-state">
+      <div class="empty-icon">📈</div>
+      <div class="empty-title">No Chart Data</div>
+      <p class="empty-desc">Run a simulation first to generate performance charts.</p>
+      <button class="btn btn-primary" onclick="switchTab('simulation')">▶ Run Simulation</button>
+    </div>
+
+    <div id="chartsSection">
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-card-title">📊 Page Faults vs Hits</div>
+          <canvas id="faultsChart" aria-label="Bar chart comparing page faults and hits"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">📉 Hit Ratio vs Fault Rate (%)</div>
+          <canvas id="hitRatioChart" aria-label="Bar chart comparing hit ratio and fault rate"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">📈 Cumulative Fault Trend</div>
+          <canvas id="faultTrendChart" aria-label="Line chart showing cumulative page faults over steps"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">🍩 Best Algorithm Breakdown</div>
+          <canvas id="doughnutChart" aria-label="Doughnut chart of best algorithm hit vs fault split"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ PAGE: ABOUT ═════════════════════════════════════════ -->
+<main id="page-about" class="page" role="tabpanel" aria-labelledby="tab-about">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-eyebrow">Documentation</div>
+      <h2 class="section-title">About Simulator Suite</h2>
+      <p class="section-desc">A production-grade educational tool for understanding virtual memory management.</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>📋 FIFO — First In First Out</h3>
+        <p>The simplest page replacement policy. Pages are evicted in the order they were loaded. Implemented using a queue.</p>
+        <br/>
+        <p><strong>Pros:</strong> Simple, low overhead.</p>
+        <p><strong>Cons:</strong> Suffers from Bélády's Anomaly — more frames can cause more faults.</p>
+        <br/>
+        <p><strong>Real-world use:</strong> Simple buffer management, network packet queues.</p>
+      </div>
+      <div class="about-card">
+        <h3>🕐 LRU — Least Recently Used</h3>
+        <p>Evicts the page that has not been referenced for the longest time. Exploits temporal locality of reference.</p>
+        <br/>
+        <p><strong>Pros:</strong> Good performance in practice. No Bélády's Anomaly.</p>
+        <p><strong>Cons:</strong> Requires timestamp tracking; costly in hardware.</p>
+        <br/>
+        <p><strong>Real-world use:</strong> Linux kernel page cache, CPU TLB replacement, database buffer pools.</p>
+      </div>
+      <div class="about-card">
+        <h3>⭐ Optimal (Bélády's Algorithm)</h3>
+        <p>Evicts the page that will not be used for the longest time in the future. Produces the theoretical minimum page faults.</p>
+        <br/>
+        <p><strong>Pros:</strong> Minimum possible page faults — the gold standard benchmark.</p>
+        <p><strong>Cons:</strong> Requires future knowledge; not implementable in real systems.</p>
+        <br/>
+        <p><strong>Real-world use:</strong> Benchmark for evaluating other algorithms.</p>
+      </div>
+      <div class="about-card">
+        <h3>🛠️ Technologies Used</h3>
+        <div class="tech-tags">
+          <span class="tech-tag">Python 3.12</span>
+          <span class="tech-tag">Flask 3.0</span>
+          <span class="tech-tag">Flask-CORS</span>
+          <span class="tech-tag">Gunicorn</span>
+          <span class="tech-tag">Chart.js 4</span>
+          <span class="tech-tag">Vanilla JS (ES2022)</span>
+          <span class="tech-tag">CSS Custom Properties</span>
+          <span class="tech-tag">Google Fonts</span>
+          <span class="tech-tag">pytest</span>
+          <span class="tech-tag">REST API</span>
+        </div>
+        <br/>
+        <p style="font-size:0.8rem;color:var(--text-muted)">Architecture: Flask SPA • Service Layer • Algorithm Modules • Clean REST API</p>
+      </div>
+      <div class="about-card" style="grid-column:1/-1">
+        <h3>🎓 Educational Value</h3>
+        <ul>
+          <li>Understand how operating systems manage physical memory using virtual address spaces</li>
+          <li>Visualize the impact of frame count on page fault frequency</li>
+          <li>Compare theoretical optimum (Optimal) against practical algorithms (FIFO, LRU)</li>
+          <li>Study Bélády's Anomaly using FIFO with varying frame sizes</li>
+          <li>Analyze hit ratios and fault rates to understand memory workload characteristics</li>
+          <li>Applicable to CPU cache replacement, CDN caching, and database buffer management</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════ -->
+<footer class="footer">
+  <p>⚡ <strong>Simulator Suite</strong> — Virtual Memory Page Replacement Simulator &nbsp;|&nbsp; Built with Flask + Vanilla JS &nbsp;|&nbsp; <span id="healthStatus">Checking server…</span></p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script>
+  // Server health badge
+  fetch('/health').then(r => r.json()).then(d => {
+    document.getElementById('healthStatus').innerHTML =
+      d.data?.healthy
+        ? `<span style="color:var(--accent-green)">● Server Online</span> (uptime: ${d.data.uptime_seconds}s)`
+        : '<span style="color:var(--accent-red)">● Server Offline</span>';
+  }).catch(() => {
+    document.getElementById('healthStatus').innerHTML = '<span style="color:var(--accent-red)">● Server Offline</span>';
+  });
+</script>
+</body>
+</html>
